@@ -37,6 +37,9 @@ public:
     while (true) {
       int i, j;
       std::cin >> i >> j;
+      if (i == -1 || j == -1) {
+        break;
+      }
       --i;
       --j;
       if (i < 0 || i > 7 || j < 0 || j > 7) {
@@ -68,8 +71,8 @@ public:
       }
       if (std::abs(i - chosen.pos_i) > 1 && std::abs(j - chosen.pos_j) > 1) {
         int beat_i, beat_j;
-        std::cin >> beat_i >> beat_j;
-        while (beat_j != -1 && beat_i != -1) {
+        if (beat_j != -1 || beat_i != -1) {
+          std::cin >> beat_i >> beat_j;
           --beat_i;
           --beat_j;
           if (board.GetPieces()[beat_i][beat_j].value != opponent_side ||
@@ -84,10 +87,8 @@ public:
           move.killed.emplace(beat_i, beat_j, opponent_side);
           ++move.killed_pieces_amt;
           move.killed_kings_amt += board.GetPieces()[beat_i][beat_j].king;
-          std::cin >> beat_i >> beat_j;
         }
       }
-      break;
     }
     board.MakeMove(move);
     std::cout << board;
