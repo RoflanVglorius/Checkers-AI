@@ -70,23 +70,32 @@ public:
         break;
       }
       if (std::abs(i - chosen.pos_i) > 1 && std::abs(j - chosen.pos_j) > 1) {
-        int beat_i, beat_j;
-        if (beat_j != -1 || beat_i != -1) {
-          std::cin >> beat_i >> beat_j;
-          --beat_i;
-          --beat_j;
-          if (board.GetPieces()[beat_i][beat_j].value != opponent_side ||
-              std::abs(beat_j - chosen.pos_j) > std::abs(beat_j - j) ||
-              std::abs(beat_i - chosen.pos_i) > std::abs(beat_i - i)) {
-            std::cout
-                << "You cannot beat your pieces or empty cells. Enter your "
-                   "move again.\n";
-            continue;
+        std::cout << "Would you like to beat some pieces? (Yes/No)\n";
+        std::string ans;
+        std::cin >> ans;
+        if (ans == "Yes") {
+          std::cout << "Choose piece to beat: \n";
+          int beat_i, beat_j;
+          if (beat_j != -1 || beat_i != -1) {
+            std::cin >> beat_i >> beat_j;
+            --beat_i;
+            --beat_j;
+            if (board.GetPieces()[beat_i][beat_j].value != opponent_side ||
+                std::abs(beat_j - chosen.pos_j) > std::abs(beat_j - j) ||
+                std::abs(beat_i - chosen.pos_i) > std::abs(beat_i - i)) {
+              std::cout
+                  << "You cannot beat your pieces or empty cells. Enter your "
+                     "move again.\n";
+              continue;
+            }
+            move.dest = {i, j};
+            move.killed.emplace(beat_i, beat_j, opponent_side);
+            ++move.killed_pieces_amt;
+            move.killed_kings_amt += board.GetPieces()[beat_i][beat_j].king;
           }
+        } else if (ans == "No") {
           move.dest = {i, j};
-          move.killed.emplace(beat_i, beat_j, opponent_side);
-          ++move.killed_pieces_amt;
-          move.killed_kings_amt += board.GetPieces()[beat_i][beat_j].king;
+          break;
         }
       }
     }
