@@ -69,56 +69,30 @@ private:
   std::vector<Board::Move> FindPossibleTurns(int i, int j, Pieces &pieces) {
     std::vector<Board::Move> possible_moves;
     if (!pieces[i][j].king) {
+      std::vector<std::pair<int, int>> vecs;
       if (pieces[i][j].value == bot_side) {
-        if (i < 7 && j > 0 && pieces[i + 1][j - 1].value == ' ') {
-          Board::Move move;
-          move.to_move = pieces[i][j];
-          move.dest = {i + 1, j - 1};
-          possible_moves.push_back(std::move(move));
-        }
-        if (i < 7 && j < 7 && pieces[i + 1][j + 1].value == ' ') {
-          Board::Move move;
-          move.to_move = pieces[i][j];
-          move.dest = {i + 1, j + 1};
-          possible_moves.push_back(std::move(move));
-        }
+        vecs = {{1, -1}, {1, 1}};
       } else {
-        if (i > 0 && j > 0 && pieces[i - 1][j - 1].value == ' ') {
+        vecs = {{-1, -1}, {-1, 1}};
+      }
+      for (const auto &vec : vecs) {
+        if (i < 7 && j > 0 && i > 0 && j < 7 &&
+            pieces[i + vec.first][j + vec.second].value == ' ') {
           Board::Move move;
           move.to_move = pieces[i][j];
-          move.dest = {i - 1, j - 1};
-          possible_moves.push_back(std::move(move));
-        }
-        if (i > 0 && j < 7 && pieces[i - 1][j + 1].value == ' ') {
-          Board::Move move;
-          move.to_move = pieces[i][j];
-          move.dest = {i - 1, j + 1};
+          move.dest = {i + vec.first, j + vec.second};
           possible_moves.push_back(std::move(move));
         }
       }
     } else {
-      for (int cur_i = i + 1, cur_j = j + 1; cur_i < 8 && cur_j < 8;
-           ++cur_i, ++cur_j) {
-        if (pieces[cur_i][cur_j].value != ' ') {
-          break;
-        }
-      }
-      for (int cur_i = i - 1, cur_j = j + 1; cur_i > -1 && cur_j < 8;
-           --cur_i, ++cur_j) {
-        if (pieces[cur_i][cur_j].value != ' ') {
-          break;
-        }
-      }
-      for (int cur_i = i + 1, cur_j = j - 1; cur_i < 8 && cur_j > -1;
-           ++cur_i, --cur_j) {
-        if (pieces[cur_i][cur_j].value != ' ') {
-          break;
-        }
-      }
-      for (int cur_i = i - 1, cur_j = j - 1; cur_i > -1 && cur_j > -1;
-           --cur_i, --cur_j) {
-        if (pieces[cur_i][cur_j].value != ' ') {
-          break;
+      std::vector<std::pair<int, int>> vecs{{1, -1}, {1, 1}, {-1, 1}, {-1, -1}};
+      for (auto &vec : vecs) {
+        for (int cur_i = i + vec.first, cur_j = j + vec.second;
+             cur_i < 8 && cur_j < 8 && cur_i >= 0 && cur_j >= 0;
+             cur_i += vec.first, cur_j += vec.second) {
+          if (pieces[cur_i][cur_j].value != ' ') {
+            break;
+          }
         }
       }
     }
@@ -172,36 +146,16 @@ private:
                                 char side) {
     std::vector<Piece> to_kill;
     if (pieces[i][j].king) {
-      for (int cur_i = i + 1, cur_j = j + 1; cur_i < 7 && cur_j < 7;
-           ++cur_i, ++cur_j) {
-        if (pieces[cur_i][cur_j].value == side &&
-            pieces[cur_i + 1][cur_j + 1].value == ' ') {
-          to_kill.push_back(pieces[cur_i][cur_j]);
-          break;
-        }
-      }
-      for (int cur_i = i - 1, cur_j = j + 1; cur_i > 0 && cur_j < 7;
-           --cur_i, ++cur_j) {
-        if (pieces[cur_i][cur_j].value == side &&
-            pieces[cur_i - 1][cur_j + 1].value == ' ') {
-          to_kill.push_back(pieces[cur_i][cur_j]);
-          break;
-        }
-      }
-      for (int cur_i = i + 1, cur_j = j - 1; cur_i < 7 && cur_j > 0;
-           ++cur_i, --cur_j) {
-        if (pieces[cur_i][cur_j].value == side &&
-            pieces[cur_i + 1][cur_j - 1].value == ' ') {
-          to_kill.push_back(pieces[cur_i][cur_j]);
-          break;
-        }
-      }
-      for (int cur_i = i - 1, cur_j = j - 1; cur_i > 0 && cur_j > 0;
-           --cur_i, --cur_j) {
-        if (pieces[cur_i][cur_j].value == side &&
-            pieces[cur_i - 1][cur_j - 1].value == ' ') {
-          to_kill.push_back(pieces[cur_i][cur_j]);
-          break;
+      std::vector<std::pair<int, int>> vecs{{1, -1}, {1, 1}, {-1, 1}, {-1, -1}};
+      for (const auto &vec : vecs) {
+        for (int cur_i = i + vec.first, cur_j = j + vec.second;
+             cur_i < 7 && cur_j < 7 && cur_j > 0 && cur_i > 0;
+             cur_i += vec.first, cur_j += vec.second) {
+          if (pieces[cur_i][cur_j].value == side &&
+              pieces[cur_i + vec.first][cur_j + vec.second].value == ' ') {
+            to_kill.push_back(pieces[cur_i][cur_j]);
+            break;
+          }
         }
       }
     } else {
